@@ -2,6 +2,8 @@
 
 A quiet desktop companion that shows how much you have earned during your workday. Built with **Rust, Tauri 2, Vue 3, and TypeScript**. Works offline, with no account or telemetry.
 
+![Light theme dashboard](docs/preview.png)
+
 ## Download
 
 Get the latest installers from [GitHub Releases](https://github.com/Muimi272/wage_slave_motivator/releases/latest):

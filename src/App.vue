@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { version } from '../package.json'
 import { isTauri, invoke } from '@tauri-apps/api/core'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { listen, type UnlistenFn } from '@tauri-apps/api/event'
@@ -478,7 +479,7 @@ onUnmounted(() => {
             @click="toggleTheme"
           >
             <component :is="isDark ? Sun : Moon" :size="18" /></button
-          ><span class="version">v1.0.0</span
+          ><span class="version">v{{ version }}</span
           ><button class="icon-button" aria-label="关于应用" @click="about = true">
             <CircleHelp :size="17" />
           </button>
@@ -990,7 +991,7 @@ onUnmounted(() => {
         <X :size="18" /></button
       ><span class="about-logo"><Sprout :size="36" /></span>
       <h2 id="about-title">牛马鼓励器</h2>
-      <p>MOTIVATOR / 1.0.0</p>
+      <p>MOTIVATOR / {{ version }}</p>
       <div class="about-shortcuts">
         <span>迷你窗口</span><span>始终置顶</span><span>关闭窗口</span><span>保留在系统托盘</span
         ><span>退出应用</span><span>系统托盘 → 退出</span>

@@ -4,6 +4,8 @@
 
 Rust + Tauri 2 + Vue 3 + TypeScript 桌面应用。实时显示当日工资，提供工作日程、发薪倒计时、专注时钟与置顶迷你窗口。无账号、无遥测，离线运行。
 
+![浅色界面预览](docs/preview.png)
+
 ## 开发
 
 需要 Node.js 22.12+、Rust stable 和 [Tauri 2 系统依赖](https://v2.tauri.app/start/prerequisites/)。Windows 需要 MSVC C++ Build Tools 与 WebView2。

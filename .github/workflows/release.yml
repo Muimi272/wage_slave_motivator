@@ -8,7 +8,7 @@ on:
       tag:
         description: Existing unpublished version tag
         required: true
-        default: v1.0.0
+        default: v1.0.1
 
 permissions:
   contents: write
@@ -37,8 +37,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          existing=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" 2>/dev/null || true)
-          if [ -n "$existing" ]; then
+          if existing=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" 2>/dev/null); then
             test "$(echo "$existing" | jq -r '.draft')" = true
             release_id=$(echo "$existing" | jq -r '.id')
           else
