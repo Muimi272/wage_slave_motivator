@@ -1,4 +1,4 @@
-# 牛马鼓励器 1.0.1
+# 牛马鼓励器 1.0.2
 
 Windows x64 · macOS Universal · Linux x64 · 2026-11-04
 
@@ -16,7 +16,7 @@ Windows x64 · macOS Universal · Linux x64 · 2026-11-04
 
 `artifacts/release/` 包含：
 
-- `wage_slave_motivator_1.0.1_x64-setup.exe`：当前用户安装器，带简体中文与英语安装界面。
+- `wage_slave_motivator_1.0.2_x64-setup.exe`：当前用户安装器，带简体中文与英语安装界面。
 - `wage_slave_motivator.exe`：独立主程序，系统需已有 WebView2。
 - `SHA256SUMS.txt`：程序与安装器的 SHA-256 校验值。
 

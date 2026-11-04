@@ -8,7 +8,7 @@ on:
       tag:
         description: Existing unpublished version tag
         required: true
-        default: v1.0.1
+        default: v1.0.2
 
 permissions:
   contents: write
@@ -90,6 +90,17 @@ jobs:
         with:
           releaseId: ${{ needs.prepare.outputs.release_id }}
           args: ${{ matrix.args }}
+      - name: Validate Linux packages
+        if: runner.os == 'Linux'
+        run: |
+          for package in target/release/bundle/deb/*.deb; do
+            dpkg-deb --info "$package"
+            dpkg-deb --field "$package" Package | grep -Eq '^[a-z0-9][a-z0-9+.-]+$'
+          done
+          file target/release/bundle/appimage/*.AppImage
+      - name: Verify universal macOS executable
+        if: runner.os == 'macOS'
+        run: lipo -verify_arch arm64 x86_64 target/universal-apple-darwin/release/wage_slave_motivator
 
   publish:
     needs: [prepare, build]

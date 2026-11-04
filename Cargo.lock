@@ -4113,7 +4113,7 @@ dependencies = [
 
 [[package]]
 name = "wage_slave_motivator"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "serde",
  "serde_json",
