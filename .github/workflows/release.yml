@@ -37,12 +37,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if existing=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" 2>/dev/null); then
-            test "$(echo "$existing" | jq -r '.draft')" = true
-            release_id=$(echo "$existing" | jq -r '.id')
+          if existing=$(gh release view "$RELEASE_TAG" --json databaseId,isDraft 2>/dev/null); then
+            test "$(echo "$existing" | jq -r '.isDraft')" = true
+            release_id=$(echo "$existing" | jq -r '.databaseId')
           else
             gh release create "$RELEASE_TAG" --draft --verify-tag --title "牛马鼓励器 $RELEASE_TAG" --notes-file RELEASE.md
-            release_id=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq '.id')
+            release_id=$(gh release view "$RELEASE_TAG" --json databaseId --jq '.databaseId')
           fi
           echo "id=$release_id" >> "$GITHUB_OUTPUT"
 
