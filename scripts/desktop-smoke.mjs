@@ -65,7 +65,10 @@ try {
   assert.equal(await native(page, 'is_visible'), true)
   checks.push('Packaged application starts with real Tauri IPC and first-run configuration')
   await page.getByRole('button', { name: '今日概览', exact: true }).click()
-  await page.screenshot({ path: path.join(screenshots, 'desktop-light.png') })
+  await page.screenshot({
+    path: path.join(screenshots, 'desktop-light.png'),
+    animations: 'disabled',
+  })
 
   await page.getByRole('button', { name: '薪资与偏好', exact: true }).click()
   await page.getByRole('spinbutton', { name: '税后月薪' }).fill('18000')
@@ -98,28 +101,40 @@ try {
   await page.getByRole('button', { name: '薪资与偏好', exact: true }).click()
   assert.equal(await page.getByRole('spinbutton', { name: '税后月薪' }).inputValue(), '20000')
   checks.push('Salary settings save, atomically replace, and reload through Rust')
-  await page.screenshot({ path: path.join(screenshots, 'desktop-settings.png'), fullPage: true })
+  await page.screenshot({
+    path: path.join(screenshots, 'desktop-settings.png'),
+    fullPage: true,
+    animations: 'disabled',
+  })
 
   await page.getByRole('button', { name: '切换深色模式', exact: true }).click()
   await waitValue(page, () => document.documentElement.dataset.theme === 'dark')
   await page.getByRole('button', { name: '今日概览', exact: true }).click()
-  await page.screenshot({ path: path.join(screenshots, 'desktop-dark.png') })
+  await page.screenshot({
+    path: path.join(screenshots, 'desktop-dark.png'),
+    animations: 'disabled',
+  })
   await page.getByRole('button', { name: '隐藏金额', exact: true }).click()
   assert.equal(await page.getByTestId('earnings').innerText(), '••••')
   await page.getByRole('button', { name: '显示金额', exact: true }).click()
   checks.push('Dark theme and salary privacy')
 
+  const originalSize = await native(page, 'inner_size')
   await page.getByRole('button', { name: '迷你模式', exact: true }).click()
   await expectVisible(page.getByRole('button', { name: '展开主窗口', exact: true }))
   await waitValue(page, () => innerWidth <= 380 && innerHeight <= 180)
   assert.equal(await native(page, 'is_always_on_top'), true)
   assert.equal(await native(page, 'is_resizable'), false)
-  await page.screenshot({ path: path.join(screenshots, 'desktop-mini.png') })
+  await page.screenshot({
+    path: path.join(screenshots, 'desktop-mini.png'),
+    animations: 'disabled',
+  })
   await page.getByRole('button', { name: '展开主窗口', exact: true }).click()
   await expectVisible(page.getByRole('heading', { name: '今日概览.' }))
   await waitValue(page, () => innerWidth >= 860 && innerHeight >= 680)
   assert.equal(await native(page, 'is_always_on_top'), false)
   assert.equal(await native(page, 'is_resizable'), true)
+  assert.deepEqual(await native(page, 'inner_size'), originalSize)
   checks.push('Native compact dimensions, always-on-top, resize lock, and restoration')
 
   await page.getByRole('button', { name: '关闭到系统托盘', exact: true }).click()
@@ -143,7 +158,10 @@ try {
   await page.getByRole('button', { name: '专注时钟', exact: true }).click()
   assert.equal(await page.getByRole('timer').innerText(), paused)
   await page.getByRole('button', { name: '继续专注', exact: true }).click()
-  await page.screenshot({ path: path.join(screenshots, 'desktop-focus.png') })
+  await page.screenshot({
+    path: path.join(screenshots, 'desktop-focus.png'),
+    animations: 'disabled',
+  })
   // Let the real one-minute timer finish; no mocked app clock or accelerated business logic.
   await page
     .getByRole('button', { name: '开始休息', exact: true })

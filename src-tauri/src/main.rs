@@ -166,7 +166,7 @@ fn set_compact(
     if saved.is_some() {
         return Ok(());
     }
-    let size = window.outer_size().map_err(|e| e.to_string())?;
+    let size = window.inner_size().map_err(|e| e.to_string())?;
     let position = window.outer_position().map_err(|e| e.to_string())?;
     window.unmaximize().map_err(|e| e.to_string())?;
     window
