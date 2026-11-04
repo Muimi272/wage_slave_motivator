@@ -100,7 +100,7 @@ jobs:
           file target/release/bundle/appimage/*.AppImage
       - name: Verify universal macOS executable
         if: runner.os == 'macOS'
-        run: lipo -verify_arch arm64 x86_64 target/universal-apple-darwin/release/wage_slave_motivator
+        run: lipo target/universal-apple-darwin/release/wage_slave_motivator -verify_arch arm64 x86_64
 
   publish:
     needs: [prepare, build]
