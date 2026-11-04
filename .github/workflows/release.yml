@@ -106,7 +106,10 @@ jobs:
       - name: Upload verified packages
         env:
           GH_TOKEN: ${{ github.token }}
-        run: node scripts/upload-bundles.mjs
+        shell: bash
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/contents/scripts/upload-bundles.mjs?ref=$GITHUB_SHA" --jq .content | base64 --decode > upload-bundles.mjs
+          node upload-bundles.mjs
 
   publish:
     needs: [prepare, build]
