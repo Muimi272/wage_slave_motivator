@@ -40,6 +40,9 @@ jobs:
           if existing=$(gh release view "$RELEASE_TAG" --json databaseId,isDraft 2>/dev/null); then
             test "$(echo "$existing" | jq -r '.isDraft')" = true
             release_id=$(echo "$existing" | jq -r '.databaseId')
+            gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' | while IFS= read -r asset; do
+              gh release delete-asset "$RELEASE_TAG" "$asset" --yes
+            done
           else
             gh release create "$RELEASE_TAG" --draft --verify-tag --title "牛马鼓励器 $RELEASE_TAG" --notes-file RELEASE.md
             release_id=$(gh release view "$RELEASE_TAG" --json databaseId --jq '.databaseId')
@@ -88,7 +91,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          releaseId: ${{ needs.prepare.outputs.release_id }}
           args: ${{ matrix.args }}
       - name: Validate Linux packages
         if: runner.os == 'Linux'
@@ -101,6 +103,10 @@ jobs:
       - name: Verify universal macOS executable
         if: runner.os == 'macOS'
         run: lipo target/universal-apple-darwin/release/wage_slave_motivator -verify_arch arm64 x86_64
+      - name: Upload verified packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/upload-bundles.mjs
 
   publish:
     needs: [prepare, build]
