@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="184" height="40" viewBox="0 0 184 40" role="img" aria-label="阅读中文说明">
+  <rect width="184" height="40" rx="7" fill="#526747"/>
+  <text x="22" y="25" font-family="Segoe UI,Microsoft YaHei,sans-serif" font-size="13" fill="#f5f6ef">阅读中文说明</text>
+  <path d="M149 15l5 5-5 5m-8-5h12" fill="none" stroke="#f5f6ef" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

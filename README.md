@@ -1,45 +1,90 @@
-# 牛马鼓励器
+# Wage Slave Motivator · 牛马鼓励器
 
-Rust + Tauri 2 + Vue 3 + TypeScript 桌面应用。实时显示当日工资，提供工作日程、发薪倒计时、专注时钟与置顶迷你窗口。无账号、无遥测，离线运行。
+A quiet desktop companion that shows how much you have earned during your workday. Built with **Rust, Tauri 2, Vue 3, and TypeScript**. Works offline, with no account or telemetry.
 
-## 开发
+## Download
 
-需要 Node.js 22.12+、Rust stable 和 [Tauri 2 系统依赖](https://v2.tauri.app/start/prerequisites/)。Windows 需要 MSVC C++ Build Tools 与 WebView2。
+Get the latest installers from [GitHub Releases](https://github.com/Muimi272/wage_slave_motivator/releases/latest):
+
+| Platform                       | Package                            |
+| ------------------------------ | ---------------------------------- |
+| Windows x64                    | `.exe` installer                   |
+| macOS, Apple Silicon and Intel | Universal `.dmg` and `.app.tar.gz` |
+| Linux x64                      | `.deb` and `.AppImage`             |
+
+Release assets include `SHA256SUMS.txt`. Builds are unsigned; macOS builds are not notarized. On Windows, the installer installs for the current user and offers WebView2 installation if needed.
+
+The application interface is in Simplified Chinese.
+
+## Features
+
+- Live daily earnings calculated from your salary, paid days, and work schedule.
+- Custom workdays, optional unpaid lunch, and a calendar-based payday countdown.
+- Always-on-top compact mode, draggable title bar, system tray, and single-instance restoration.
+- Focus and break timers with pause/resume, daily completed sessions, and restart recovery.
+- Optional system notifications for lunch, the end of work, and completed timers.
+- Light, dark, and system themes; one-click salary privacy.
+- Local settings and records, with no network service required.
+
+## Getting started
+
+The first launch opens **薪资与偏好** (Salary & preferences). Set your net monthly salary, average paid days per month, workdays, working hours, lunch, and payday, then save.
+
+Daily pay is monthly salary divided by paid days; hourly pay divides daily pay by paid working hours. Earnings are calculated from the system clock, so sleep and suspension do not introduce drift. Unselected weekdays earn nothing. The current version supports shifts within one calendar day.
+
+The weekly figure is an estimate using your current settings: previous workdays count in full, today counts elapsed paid time, and future days are excluded. It is not a historical payroll ledger. Daily earnings reset at local midnight. Payday falls on the last day of shorter months when necessary; public holidays do not shift the date.
+
+Use **迷你模式** for an always-on-top earnings widget. Drag its title bar to move it, and expand it or press `Esc` to return. Closing the window keeps the application in the system tray. Left-click the tray icon to restore; right-click it for settings or **退出牛马鼓励器** (Quit).
+
+Focus and break sessions start manually. Only completed focus sessions count toward daily records. Timers recover from absolute deadlines after a restart. Reminders are off by default and require the application to be running, including in the tray.
+
+## Development
+
+Install Node.js 22.12+, stable Rust, and the [Tauri 2 prerequisites](https://v2.tauri.app/start/prerequisites/) for your platform. Windows requires the MSVC C++ Build Tools and WebView2.
 
 ```sh
 npm ci
 npm run tauri dev
 ```
 
-仅预览界面：`npm run dev`，打开 `http://127.0.0.1:1420`。浏览器预览使用 localStorage；桌面版薪资与偏好由 Rust 原子写入系统应用配置目录中的 `settings.json`。专注状态、专注完成记录与金额隐藏偏好存于 WebView 本地存储。所有功能均无需远程服务。
-
-## 校验与打包
+For a browser preview, run `npm run dev` and open `http://127.0.0.1:1420`. Desktop integrations require Tauri.
 
 ```sh
 npm test
 npm run build
+npm run format:check
 cargo test --workspace
 cargo clippy --workspace --all-targets -- -D warnings
-npm run tauri build
+cargo fmt --all -- --check
 ```
 
-Windows 安装包在 `target/release/bundle/nsis/`，独立程序在 `target/release/wage_slave_motivator.exe`。安装包使用当前用户安装，无需管理员权限；缺少 WebView2 时安装器会引导安装。分发前可按需配置代码签名；本地构建的安装包未签名。
+Desktop settings are atomically saved by Rust to `settings.json` in the system application configuration directory. Set `MOTIVATOR_DATA_DIR` to an absolute path to override that directory. Focus state, daily focus records, and salary privacy are stored in WebView local storage; the browser preview uses localStorage for settings as well.
 
-## 使用
+## Build and release
 
-- 在「薪资与偏好」设置税后月薪、月计薪天数、工作日、工作时间、午休及发薪日。
-- 首次启动直接打开设置。设置文件可通过绝对路径环境变量 `MOTIVATOR_DATA_DIR` 指定其他存储目录。
-- 日薪 = 月薪 ÷ 月计薪天数；时薪 = 日薪 ÷ 每日有效工作小时。仅在选定工作日计薪，启用午休后午休不计薪。当前版本支持同日班次。
-- 金额按系统绝对时间计算，休眠恢复后自动校准。当日收入在午夜重置。本周预计收入按当前设置推算，未来日期不计入，并非历史工资账本。
-- 发薪日在短月份自动取该月最后一天。倒计时按自然日计算，不考虑节假日顺延。
-- 迷你模式始终置顶，拖动标题空白区域移动；展开按钮或 `Esc` 返回主窗口。
-- 关闭窗口后继续在系统托盘运行。左键托盘恢复主窗口，右键可打开设置或彻底退出。再次启动应用会恢复已有窗口。
-- 专注结束后手动开始休息；休息结束后手动开始下一次专注。暂停与重启不会丢失当前进度。只有完整结束的专注计入完成记录。
-- 提醒默认关闭，在设置中启用后发送午休、下班及计时结束的系统通知。应用完全退出时不运行后台提醒；重新打开会校准已有计时。
-- 眼睛按钮隐藏金额；侧栏底部切换深浅主题，也可在设置中选择跟随系统。
+```sh
+# Windows
+npm run release:windows
 
-## 发布
+# macOS, with both Rust targets installed
+npm run tauri -- build --target universal-apple-darwin --bundles dmg,app
 
-版本号维护于 `package.json`、`src-tauri/Cargo.toml`、`src-tauri/tauri.conf.json`。仓库提供标签触发的 GitHub Actions，构建 Windows、macOS 和 Linux 草稿发布产物。推送 `v*` 标签后生成草稿 Release，检查后手动发布。当前源码不包含自动更新或外部网络服务。
+# Linux
+npm run tauri -- build --bundles deb,appimage
+```
 
-许可证：[MIT](LICENSE)。
+Windows release files are collected in `artifacts/release/`. Native Tauri output lives under `target/release/bundle/` (or the corresponding target directory for universal macOS builds).
+
+On Windows, `npm run test:desktop` starts the actual release executable in WebView2 and runs a smoke test, including a real one-minute timer. Build first and close any other running instance. Test data stays inside `.qa/`; screenshots and reports are written to `artifacts/`.
+
+The [release workflow](.github/workflows/release.yml) builds Windows x64, universal macOS, and Linux x64. A `v*` tag creates a draft, runs checks and builds on each platform, uploads packages and checksums, and publishes only when all platform jobs succeed. Failed runs leave the release as a draft. Manual dispatch can retry an unpublished tag.
+
+Keep versions aligned in `package.json`, `src-tauri/Cargo.toml`, and `src-tauri/tauri.conf.json` before tagging a release. The application does not include an automatic updater.
+
+## License
+
+[MIT](LICENSE).
+
+---
+
+[![阅读中文说明](docs/readme-zh.svg)](README.zh-CN.md)

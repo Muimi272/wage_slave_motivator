@@ -65,6 +65,14 @@ try {
   assert.equal(await native(page, 'is_visible'), true)
   checks.push('Packaged application starts with real Tauri IPC and first-run configuration')
   await page.getByRole('button', { name: '今日概览', exact: true }).click()
+  if (await page.locator('.earnings-meta .status').filter({ hasText: '计薪中' }).count()) {
+    const amount = await page.getByTestId('earnings').innerText()
+    await page.waitForFunction(
+      (previous) => document.querySelector('[data-testid="earnings"]')?.textContent !== previous,
+      amount,
+    )
+    checks.push('Visible earnings increase in real time during paid working hours')
+  }
   await page.screenshot({
     path: path.join(screenshots, 'desktop-light.png'),
     animations: 'disabled',
@@ -107,6 +115,13 @@ try {
     animations: 'disabled',
   })
 
+  await page.getByRole('button', { name: '跟随系统', exact: true }).click()
+  await page.getByRole('button', { name: '保存设置', exact: true }).click()
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await waitValue(page, () => document.documentElement.dataset.theme === 'dark')
+  await page.emulateMedia({ colorScheme: 'light' })
+  await waitValue(page, () => document.documentElement.dataset.theme === 'light')
+  checks.push('System theme follows live media changes')
   await page.getByRole('button', { name: '切换深色模式', exact: true }).click()
   await waitValue(page, () => document.documentElement.dataset.theme === 'dark')
   await page.getByRole('button', { name: '今日概览', exact: true }).click()
