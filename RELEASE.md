@@ -14,7 +14,16 @@ Windows x64 · macOS Universal · Linux x64 · 2026-11-04
 
 ## 文件
 
-`artifacts/release/` 包含：
+GitHub Release 提供：
+
+- `wage_slave_motivator_1.0.2_windows_x64-setup.exe`：Windows x64 安装器。
+- `wage_slave_motivator_1.0.2_macos_universal.dmg`：macOS 通用安装镜像。
+- `wage_slave_motivator_1.0.2_macos_universal.app.tar.gz`：macOS 通用应用归档。
+- `wage_slave_motivator_1.0.2_linux_x64.deb`：Debian / Ubuntu x64 安装包。
+- `wage_slave_motivator_1.0.2_linux_x64.AppImage`：Linux x64 AppImage。
+- `SHA256SUMS.txt`：全部发布包的 SHA-256 校验值。
+
+本地构建目录 `artifacts/release/` 另包含：
 
 - `wage_slave_motivator_1.0.2_x64-setup.exe`：当前用户安装器，带简体中文与英语安装界面。
 - `wage_slave_motivator.exe`：独立主程序，系统需已有 WebView2。
@@ -22,7 +31,7 @@ Windows x64 · macOS Universal · Linux x64 · 2026-11-04
 
 首次打开进入薪资设置。关闭窗口后保留在托盘；完全退出请使用托盘菜单。当前版本支持同日班次，非工作日不计薪。本周预计收入按当前设置推算，不是历史工资账本。
 
-安装包未做代码签名，macOS 包未公证。GitHub Release 另提供 macOS 通用 `.dmg` / `.app.tar.gz` 与 Linux x64 `.deb` / `.AppImage`；跨平台产物由发布流程在对应平台构建，通过检查后统一发布。
+安装包未做代码签名，macOS 包未公证。macOS 应用同时包含 Apple Silicon 和 Intel 架构；跨平台产物由发布流程在对应平台构建，通过检查后统一发布。
 
 ## 验证
 
