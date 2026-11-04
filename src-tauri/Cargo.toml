@@ -1,0 +1,17 @@
+[package]
+name = "wage_slave_motivator"
+version = "1.0.0"
+description = "牛马鼓励器 — 实时工资与专注计时"
+edition = "2021"
+license = "MIT"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-notification = "2"
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+

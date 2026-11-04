@@ -1,0 +1,7 @@
+/* Local system fonts keep the desktop app fully offline. */
+@font-face {
+  font-family: 'Motivator Numbers';
+  src: local('Bahnschrift');
+  font-weight: 100 900;
+  font-display: swap;
+}
