@@ -74,6 +74,11 @@ try {
     await page.getByRole('option', { name: 'System', exact: true }).getAttribute('aria-selected'),
     'true',
   )
+  await page.waitForFunction(
+    () =>
+      getComputedStyle(document.querySelector('.language-option.selected')).backgroundColor ===
+      getComputedStyle(document.querySelector('.nav-item.selected')).backgroundColor,
+  )
   const menuColors = await page.evaluate(() => ({
     selected: getComputedStyle(document.querySelector('.language-option.selected')).backgroundColor,
     navigation: getComputedStyle(document.querySelector('.nav-item.selected')).backgroundColor,

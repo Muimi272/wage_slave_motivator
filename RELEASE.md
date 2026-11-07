@@ -1,14 +1,14 @@
-# Wage Slave Motivator 1.1.1 · 牛马鼓励器
+# Wage Slave Motivator 1.1.2 · 牛马鼓励器
 
 English and Simplified Chinese now work throughout the dashboard, settings, focus timer, compact window, tray menu, notifications, and validation messages. Switch languages from the sidebar; changes apply immediately and survive restarts. System mode defaults to Chinese in Chinese locales and English elsewhere, including the `C` locale used by the AppImage catalog. Existing salary and schedule settings are preserved.
 
-Linux AppImages now use the catalog’s recommended name: `Wage_Slave_Motivator-1.1.1-x86_64.AppImage`. Application and package metadata use an English name and description. Currency remains CNY in both languages.
+Linux AppImages now use the catalog’s recommended name: `Wage_Slave_Motivator-1.1.2-x86_64.AppImage`. Application and package metadata use an English name and description. Currency remains CNY in both languages.
 
 ## Downloads
 
-- Windows x64: `wage_slave_motivator_1.1.1_windows_x64-setup.exe`
-- macOS Universal (Apple Silicon and Intel): `wage_slave_motivator_1.1.1_macos_universal.dmg` and `.app.tar.gz`
-- Linux x64: `wage_slave_motivator_1.1.1_linux_x64.deb` and `Wage_Slave_Motivator-1.1.1-x86_64.AppImage`
+- Windows x64: `wage_slave_motivator_1.1.2_windows_x64-setup.exe`
+- macOS Universal (Apple Silicon and Intel): `wage_slave_motivator_1.1.2_macos_universal.dmg` and `.app.tar.gz`
+- Linux x64: `wage_slave_motivator_1.1.2_linux_x64.deb` and `Wage_Slave_Motivator-1.1.2-x86_64.AppImage`
 - `SHA256SUMS.txt`: SHA-256 checksums for all packages
 
 Installers are unsigned; macOS packages are not notarized. All packages are built and checked on their respective platforms before publication.

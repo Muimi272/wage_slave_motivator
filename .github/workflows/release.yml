@@ -8,7 +8,7 @@ on:
       tag:
         description: Existing unpublished version tag
         required: true
-        default: v1.1.1
+        default: v1.1.2
 
 permissions:
   contents: write
