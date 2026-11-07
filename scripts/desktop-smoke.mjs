@@ -15,6 +15,7 @@ const executable = path.resolve(process.argv[2] || 'target/release/wage_slave_mo
 const port = 19327
 const env = {
   ...process.env,
+  LC_ALL: 'C',
   MOTIVATOR_DATA_DIR: dataDir,
   WEBVIEW2_USER_DATA_FOLDER: path.join(dataDir, 'webview'),
   WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1`,
@@ -61,6 +62,34 @@ async function native(page, command) {
 try {
   app = launch()
   let page = await attach()
+  await expectVisible(page.getByRole('heading', { name: 'Salary & preferences.' }))
+  assert.equal(await page.locator('html').getAttribute('lang'), 'en')
+  assert.equal(await native(page, 'title'), 'Wage Slave Motivator')
+  await page.getByRole('button', { name: 'Today', exact: true }).click()
+  await page.getByRole('button', { name: 'Focus timer', exact: true }).click()
+  assert.equal(
+    await page
+      .locator('main')
+      .innerText()
+      .then((text) => /\p{Script=Han}/u.test(text)),
+    false,
+  )
+  await page.getByRole('combobox', { name: 'Language', exact: true }).selectOption('zh-CN')
+  await page.waitForFunction(() => document.documentElement.lang === 'zh-CN')
+  assert.equal(
+    JSON.parse(await readFile(path.join(dataDir, 'settings.json'), 'utf8')).language,
+    'zh-CN',
+  )
+  await page.reload()
+  await page.waitForFunction(() => document.documentElement.lang === 'zh-CN')
+  assert.equal(await native(page, 'title'), '牛马鼓励器')
+  await page.getByRole('combobox', { name: '语言', exact: true }).selectOption('system')
+  await page.waitForFunction(() => document.documentElement.lang === 'en')
+  await page.getByRole('combobox', { name: 'Language', exact: true }).selectOption('zh-CN')
+  await page.getByRole('button', { name: '薪资与偏好', exact: true }).click()
+  checks.push(
+    'C locale defaults to English; language switches live, updates native title, persists across reload, and restores system fallback',
+  )
   await expectVisible(page.getByRole('heading', { name: '薪资与偏好.' }))
   assert.equal(await native(page, 'is_visible'), true)
   checks.push('Packaged application starts with real Tauri IPC and first-run configuration')

@@ -16,7 +16,7 @@ Get the latest installers from [GitHub Releases](https://github.com/Muimi272/wag
 
 Release assets include `SHA256SUMS.txt`. Builds are unsigned; macOS builds are not notarized. On Windows, the installer installs for the current user and offers WebView2 installation if needed.
 
-The application interface is in Simplified Chinese.
+The interface supports English and Simplified Chinese, including the tray menu and notifications. Use the language selector above Compact mode in the sidebar to switch immediately; your choice is saved. System mode follows the system language and falls back to English outside Chinese locales. On Linux, `LC_ALL`, `LC_MESSAGES`, and `LANG` are checked in that order; `C`, `POSIX`, and unsupported locales use English. Existing settings are upgraded without resetting your salary or schedule. Amounts remain in CNY in both languages.
 
 ## Features
 
@@ -30,13 +30,13 @@ The application interface is in Simplified Chinese.
 
 ## Getting started
 
-The first launch opens **薪资与偏好** (Salary & preferences). Set your net monthly salary, average paid days per month, workdays, working hours, lunch, and payday, then save.
+The first launch opens **Salary & preferences**. Set your net monthly salary, average paid days per month, workdays, working hours, lunch, and payday, then save.
 
 Daily pay is monthly salary divided by paid days; hourly pay divides daily pay by paid working hours. Earnings are calculated from the system clock, so sleep and suspension do not introduce drift. Unselected weekdays earn nothing. The current version supports shifts within one calendar day.
 
 The weekly figure is an estimate using your current settings: previous workdays count in full, today counts elapsed paid time, and future days are excluded. It is not a historical payroll ledger. Daily earnings reset at local midnight. Payday falls on the last day of shorter months when necessary; public holidays do not shift the date.
 
-Use **迷你模式** for an always-on-top earnings widget. Drag its title bar to move it, and expand it or press `Esc` to return. Closing the window keeps the application in the system tray. Left-click the tray icon to restore; right-click it for settings or **退出牛马鼓励器** (Quit).
+Use **Compact mode** for an always-on-top earnings widget. Drag its title bar to move it, and expand it or press `Esc` to return. Closing the window keeps the application in the system tray. Left-click the tray icon to restore; right-click it for settings or **Quit Wage Slave Motivator**.
 
 Focus and break sessions start manually. Only completed focus sessions count toward daily records. Timers recover from absolute deadlines after a restart. Reminders are off by default and require the application to be running, including in the tray.
 

@@ -1,4 +1,7 @@
+import type { Language, Message } from './i18n'
+
 export interface Config {
+  language: Language
   monthlySalary: number
   workDaysPerMonth: number
   payday: number
@@ -15,6 +18,7 @@ export interface Config {
 }
 
 export const defaults: Config = {
+  language: 'system',
   monthlySalary: 12000,
   workDaysPerMonth: 21.75,
   payday: 10,
@@ -35,7 +39,7 @@ export const minuteOfDay = (value: string) => {
   return h * 60 + m
 }
 
-export function validateConfig(c: Config): string | null {
+export function validateConfig(c: Config): Message | null {
   if (!Number.isFinite(c.monthlySalary) || c.monthlySalary <= 0 || c.monthlySalary > 100000000)
     return '月薪须在 0 至 100,000,000 元之间'
   if (!Number.isFinite(c.workDaysPerMonth) || c.workDaysPerMonth < 1 || c.workDaysPerMonth > 31)
@@ -71,6 +75,7 @@ export function validateConfig(c: Config): string | null {
     return '专注与休息时长须在 1 至 180 分钟之间'
   if (
     !['light', 'dark', 'system'].includes(c.theme) ||
+    !['system', 'en', 'zh-CN'].includes(c.language) ||
     typeof c.lunchEnabled !== 'boolean' ||
     typeof c.notifications !== 'boolean'
   )
@@ -102,7 +107,7 @@ export function earnings(c: Config, date: Date) {
   const lunchElapsed = c.lunchEnabled ? Math.max(0, Math.min(now, lunchEnd) - lunchStart) : 0
   const paidMs = workingDay ? Math.min(duration, Math.max(0, elapsed - lunchElapsed)) : 0
   const daily = c.monthlySalary / c.workDaysPerMonth
-  const status = !workingDay
+  const status: '休息日' | '未上班' | '已下班' | '午休中' | '计薪中' = !workingDay
     ? '休息日'
     : now < start
       ? '未上班'

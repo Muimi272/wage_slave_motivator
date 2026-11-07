@@ -35,7 +35,10 @@ for (const extension of extensions) {
   const matches = files.filter((file) => file.endsWith(extension))
   assert(matches.length === 1, `Expected exactly one ${extension} package, found: ${matches}`)
   const suffix = extension === '.exe' ? '-setup.exe' : extension
-  const name = `wage_slave_motivator_${version}_${label}${suffix}`
+  const name =
+    extension === '.AppImage'
+      ? `Wage_Slave_Motivator-${version}-x86_64.AppImage`
+      : `wage_slave_motivator_${version}_${label}${suffix}`
   const destination = path.join(output, name)
   await copyFile(matches[0], destination)
   const result = spawnSync(

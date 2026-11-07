@@ -7,7 +7,7 @@ const output = path.resolve('artifacts/release')
 await mkdir(output, { recursive: true })
 const files = [
   {
-    source: `target/release/bundle/nsis/牛马鼓励器_${version}_x64-setup.exe`,
+    source: `target/release/bundle/nsis/Wage Slave Motivator_${version}_x64-setup.exe`,
     name: `wage_slave_motivator_${version}_x64-setup.exe`,
   },
   { source: 'target/release/wage_slave_motivator.exe', name: 'wage_slave_motivator.exe' },

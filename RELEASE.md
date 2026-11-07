@@ -1,44 +1,22 @@
-# 牛马鼓励器 1.0.2
+# Wage Slave Motivator 1.1.0 · 牛马鼓励器
 
-Windows x64 · macOS Universal · Linux x64 · 2026-11-04
+English and Simplified Chinese now work throughout the dashboard, settings, focus timer, compact window, tray menu, notifications, and validation messages. Switch languages from the sidebar; changes apply immediately and survive restarts. System mode defaults to Chinese in Chinese locales and English elsewhere, including the `C` locale used by the AppImage catalog. Existing salary and schedule settings are preserved.
 
-## 功能
+Linux AppImages now use the catalog’s recommended name: `Wage_Slave_Motivator-1.1.0-x86_64.AppImage`. Application and package metadata use an English name and description. Currency remains CNY in both languages.
 
-- 按月薪、计薪天数与工作日程，实时计算当天已赚工资。
-- 自定义工作日、午休计薪、发薪日；自然日发薪倒计时。
-- 置顶迷你窗口、可拖动标题栏、系统托盘、单实例唤回。
-- 专注与休息计时、暂停和恢复、每日完成记录；休眠与重启后按绝对时间校准。
-- 午休、下班与专注结束系统提醒，默认关闭。
-- 浅色、深色与跟随系统；一键隐藏金额。
-- 本地存储，离线运行，无账号、无遥测。
+## Downloads
 
-## 文件
+- Windows x64: `wage_slave_motivator_1.1.0_windows_x64-setup.exe`
+- macOS Universal (Apple Silicon and Intel): `wage_slave_motivator_1.1.0_macos_universal.dmg` and `.app.tar.gz`
+- Linux x64: `wage_slave_motivator_1.1.0_linux_x64.deb` and `Wage_Slave_Motivator-1.1.0-x86_64.AppImage`
+- `SHA256SUMS.txt`: SHA-256 checksums for all packages
 
-GitHub Release 提供：
+Installers are unsigned; macOS packages are not notarized. All packages are built and checked on their respective platforms before publication.
 
-- `wage_slave_motivator_1.0.2_windows_x64-setup.exe`：Windows x64 安装器。
-- `wage_slave_motivator_1.0.2_macos_universal.dmg`：macOS 通用安装镜像。
-- `wage_slave_motivator_1.0.2_macos_universal.app.tar.gz`：macOS 通用应用归档。
-- `wage_slave_motivator_1.0.2_linux_x64.deb`：Debian / Ubuntu x64 安装包。
-- `wage_slave_motivator_1.0.2_linux_x64.AppImage`：Linux x64 AppImage。
-- `SHA256SUMS.txt`：全部发布包的 SHA-256 校验值。
+## 中文说明
 
-本地构建目录 `artifacts/release/` 另包含：
+新增完整的中英文界面，覆盖概览、设置、专注、迷你窗口、托盘、通知与表单校验。侧栏语言选择器与原有按钮使用一致的图标、细边框与圆角样式。可即时切换 English、简体中文或跟随系统，选择自动保存，重启后保留。中文环境默认中文，其余环境回退英文。Linux 按 `LC_ALL`、`LC_MESSAGES`、`LANG` 的优先级读取语言；`C` 环境默认英文。
 
-- `wage_slave_motivator_1.0.2_x64-setup.exe`：当前用户安装器，带简体中文与英语安装界面。
-- `wage_slave_motivator.exe`：独立主程序，系统需已有 WebView2。
-- `SHA256SUMS.txt`：程序与安装器的 SHA-256 校验值。
+旧配置自动迁移，保留薪资与工作日程；币种仍为人民币。Linux AppImage 文件名及应用元数据按 AppImage 目录约定调整。
 
-首次打开进入薪资设置。关闭窗口后保留在托盘；完全退出请使用托盘菜单。当前版本支持同日班次，非工作日不计薪。本周预计收入按当前设置推算，不是历史工资账本。
-
-安装包未做代码签名，macOS 包未公证。macOS 应用同时包含 Apple Silicon 和 Intel 架构；跨平台产物由发布流程在对应平台构建，通过检查后统一发布。
-
-## 验证
-
-已通过 TypeScript 类型检查、生产构建、35 项前端逻辑测试、Rust 配置校验、Clippy（零警告）、格式检查及 npm 依赖审计。
-
-Windows WebView2 冒烟测试覆盖实际程序启动、首次设置、薪资保存与覆盖、跨重启持久化、主题、金额隐藏、窗口置顶与尺寸恢复、托盘隐藏、单实例唤回，以及真实一分钟专注完成、暂停恢复、跨刷新记录和休息切换。测试脚本：`npm run test:desktop`；证据输出在 `artifacts/desktop-smoke.json` 与 `artifacts/screenshots/`。
-
-本机浏览器检查覆盖 1180×800、860×680 与 640×800 布局，以及表单错误、键盘焦点与主题持久化。
-
-重新生成发布文件：`npm run release:windows`。
+验证覆盖语言回退与优先级、旧配置迁移、持久化、前端类型与生产构建、Rust 配置校验与 Clippy，以及 Windows WebView2 实际程序中的语言切换、原生标题、计时、托盘与重启恢复。英文界面检查覆盖 1180×800、860×680 与 640×800 布局。

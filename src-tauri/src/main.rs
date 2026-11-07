@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use serde::{Deserialize, Serialize};
+mod language;
 use std::{fs, sync::Mutex};
 use tauri::{
     menu::{Menu, MenuItem},
@@ -11,6 +12,8 @@ use tauri::{
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Config {
+    #[serde(default = "language::default_language")]
+    language: String,
     monthly_salary: f64,
     work_days_per_month: f64,
     payday: u8,
@@ -42,7 +45,7 @@ fn minutes(value: &str) -> Option<u16> {
 }
 
 fn validate(config: &Config) -> Result<(), String> {
-    let fail = || "设置内容无效，请检查薪资与工作时间".to_string();
+    let fail = || "Invalid settings. Check salary and working hours.".to_string();
     if !config.monthly_salary.is_finite()
         || config.monthly_salary <= 0.0
         || config.monthly_salary > 100_000_000.0
@@ -54,6 +57,7 @@ fn validate(config: &Config) -> Result<(), String> {
         || !(1..=180).contains(&config.focus_minutes)
         || !(1..=180).contains(&config.break_minutes)
         || !["light", "dark", "system"].contains(&config.theme.as_str())
+        || !["system", "en", "zh-CN"].contains(&config.language.as_str())
     {
         return Err(fail());
     }
@@ -89,7 +93,7 @@ struct AppState {
 fn config_dir(app: &tauri::AppHandle, state: &AppState) -> Result<std::path::PathBuf, String> {
     if let Some(path) = &state.data_dir {
         if !path.is_absolute() {
-            return Err("MOTIVATOR_DATA_DIR 必须是绝对路径".into());
+            return Err("MOTIVATOR_DATA_DIR must be an absolute path".into());
         }
         return Ok(path.clone());
     }
@@ -108,7 +112,7 @@ fn load_config(
     }
     let data = fs::read(&path).map_err(|e| e.to_string())?;
     let config: Config =
-        serde_json::from_slice(&data).map_err(|e| format!("设置文件无法读取：{e}"))?;
+        serde_json::from_slice(&data).map_err(|e| format!("Could not read settings: {e}"))?;
     validate(&config)?;
     Ok(Some(config))
 }
@@ -197,6 +201,39 @@ fn show_main(app: &tauri::AppHandle, settings: bool) {
     }
 }
 
+struct TrayMenu {
+    show: MenuItem<tauri::Wry>,
+    settings: MenuItem<tauri::Wry>,
+    quit: MenuItem<tauri::Wry>,
+}
+
+#[tauri::command]
+fn system_locale() -> String {
+    language::system_locale()
+}
+
+#[tauri::command]
+fn set_language(app: tauri::AppHandle, locale: String) -> Result<(), String> {
+    if !["en", "zh-CN"].contains(&locale.as_str()) {
+        return Err("Unsupported language".into());
+    }
+    let [title, show, settings, quit] = language::labels(&locale);
+    if let Some(menu) = app.try_state::<TrayMenu>() {
+        menu.show.set_text(show).map_err(|e| e.to_string())?;
+        menu.settings
+            .set_text(settings)
+            .map_err(|e| e.to_string())?;
+        menu.quit.set_text(quit).map_err(|e| e.to_string())?;
+    }
+    if let Some(tray) = app.tray_by_id("main") {
+        tray.set_tooltip(Some(title)).map_err(|e| e.to_string())?;
+    }
+    if let Some(window) = app.get_webview_window("main") {
+        window.set_title(title).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
 fn main() {
     tauri::Builder::default()
         .manage(AppState {
@@ -210,16 +247,23 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             load_config,
             save_config,
-            set_compact
+            set_compact,
+            system_locale,
+            set_language
         ])
         .setup(|app| {
-            let show = MenuItem::with_id(app, "show", "显示主窗口", true, None::<&str>)?;
-            let settings = MenuItem::with_id(app, "settings", "薪资与偏好", true, None::<&str>)?;
-            let quit = MenuItem::with_id(app, "quit", "退出牛马鼓励器", true, None::<&str>)?;
+            let config = load_config(app.handle().clone(), app.state())
+                .ok()
+                .flatten();
+            let locale = language::resolve(config.as_ref().map_or("system", |c| &c.language));
+            let [title, show_label, settings_label, quit_label] = language::labels(locale);
+            let show = MenuItem::with_id(app, "show", show_label, true, None::<&str>)?;
+            let settings = MenuItem::with_id(app, "settings", settings_label, true, None::<&str>)?;
+            let quit = MenuItem::with_id(app, "quit", quit_label, true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&show, &settings, &quit])?;
-            TrayIconBuilder::new()
+            TrayIconBuilder::with_id("main")
                 .icon(app.default_window_icon().expect("bundled icon").clone())
-                .tooltip("牛马鼓励器")
+                .tooltip(title)
                 .menu(&menu)
                 .show_menu_on_left_click(false)
                 .on_menu_event(|app, event| match event.id.as_ref() {
@@ -239,6 +283,12 @@ fn main() {
                     }
                 })
                 .build(app)?;
+            app.manage(TrayMenu {
+                show,
+                settings,
+                quit,
+            });
+            set_language(app.handle().clone(), locale.into())?;
             Ok(())
         })
         .on_window_event(|window, event| {
@@ -248,7 +298,7 @@ fn main() {
             }
         })
         .run(tauri::generate_context!())
-        .expect("应用启动失败");
+        .expect("Application failed to start");
 }
 
 #[cfg(test)]
@@ -271,6 +321,21 @@ mod tests {
         assert!(validate(&c).is_err());
         let mut c = config();
         c.workdays.clear();
+        assert!(validate(&c).is_err());
+    }
+    #[test]
+    fn migrates_legacy_settings_and_preserves_language_choice() {
+        let mut c = config();
+        assert_eq!(c.language, "system");
+        for language in ["en", "zh-CN", "system"] {
+            c.language = language.into();
+            assert!(validate(&c).is_ok());
+            let saved = serde_json::to_string(&c).unwrap();
+            let loaded: Config = serde_json::from_str(&saved).unwrap();
+            assert_eq!(loaded.language, language);
+            assert_eq!(loaded.monthly_salary, 12000.0);
+        }
+        c.language = "fr".into();
         assert!(validate(&c).is_err());
     }
 }

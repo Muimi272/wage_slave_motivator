@@ -8,7 +8,7 @@ on:
       tag:
         description: Existing unpublished version tag
         required: true
-        default: v1.0.2
+        default: v1.1.0
 
 permissions:
   contents: write
@@ -44,7 +44,7 @@ jobs:
               gh release delete-asset "$RELEASE_TAG" "$asset" --yes
             done
           else
-            gh release create "$RELEASE_TAG" --draft --verify-tag --title "牛马鼓励器 $RELEASE_TAG" --notes-file RELEASE.md
+            gh release create "$RELEASE_TAG" --draft --verify-tag --title "Wage Slave Motivator $RELEASE_TAG" --notes-file RELEASE.md
             release_id=$(gh release view "$RELEASE_TAG" --json databaseId --jq '.databaseId')
           fi
           echo "id=$release_id" >> "$GITHUB_OUTPUT"
