@@ -58,6 +58,10 @@ async function native(page, command) {
     command,
   )
 }
+async function selectLanguage(page, name) {
+  await page.getByRole('combobox').click()
+  await page.getByRole('option', { name, exact: true }).click()
+}
 
 try {
   app = launch()
@@ -65,6 +69,27 @@ try {
   await expectVisible(page.getByRole('heading', { name: 'Salary & preferences.' }))
   assert.equal(await page.locator('html').getAttribute('lang'), 'en')
   assert.equal(await native(page, 'title'), 'Wage Slave Motivator')
+  await page.getByRole('combobox').click()
+  assert.equal(
+    await page.getByRole('option', { name: 'System', exact: true }).getAttribute('aria-selected'),
+    'true',
+  )
+  const menuColors = await page.evaluate(() => ({
+    selected: getComputedStyle(document.querySelector('.language-option.selected')).backgroundColor,
+    navigation: getComputedStyle(document.querySelector('.nav-item.selected')).backgroundColor,
+  }))
+  assert.equal(menuColors.selected, menuColors.navigation)
+  await page.screenshot({
+    path: path.join(screenshots, 'desktop-language-menu.png'),
+    animations: 'disabled',
+  })
+  await page.getByRole('combobox').press('End')
+  assert.equal(
+    await page.getByRole('combobox').getAttribute('aria-activedescendant'),
+    'language-option-2',
+  )
+  await page.getByRole('combobox').press('Escape')
+  assert.equal(await page.getByRole('combobox').getAttribute('aria-expanded'), 'false')
   await page.getByRole('button', { name: 'Today', exact: true }).click()
   await page.getByRole('button', { name: 'Focus timer', exact: true }).click()
   assert.equal(
@@ -74,7 +99,7 @@ try {
       .then((text) => /\p{Script=Han}/u.test(text)),
     false,
   )
-  await page.getByRole('combobox', { name: 'Language', exact: true }).selectOption('zh-CN')
+  await selectLanguage(page, '简体中文')
   await page.waitForFunction(() => document.documentElement.lang === 'zh-CN')
   assert.equal(
     JSON.parse(await readFile(path.join(dataDir, 'settings.json'), 'utf8')).language,
@@ -83,9 +108,9 @@ try {
   await page.reload()
   await page.waitForFunction(() => document.documentElement.lang === 'zh-CN')
   assert.equal(await native(page, 'title'), '牛马鼓励器')
-  await page.getByRole('combobox', { name: '语言', exact: true }).selectOption('system')
+  await selectLanguage(page, '跟随系统')
   await page.waitForFunction(() => document.documentElement.lang === 'en')
-  await page.getByRole('combobox', { name: 'Language', exact: true }).selectOption('zh-CN')
+  await selectLanguage(page, '简体中文')
   await page.getByRole('button', { name: '薪资与偏好', exact: true }).click()
   checks.push(
     'C locale defaults to English; language switches live, updates native title, persists across reload, and restores system fallback',

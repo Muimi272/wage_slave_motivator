@@ -49,8 +49,7 @@ body {
   margin: 0;
 }
 button,
-input,
-select {
+input {
   font: inherit;
 }
 button,
@@ -74,8 +73,7 @@ input {
   outline: none;
 }
 button:focus-visible,
-a:focus-visible,
-select:focus-visible {
+a:focus-visible {
   outline: 2px solid var(--green);
   outline-offset: 4px;
 }
@@ -137,42 +135,74 @@ strong {
 }
 .language-control {
   position: relative;
+  margin-bottom: 10px;
+}
+.language-trigger {
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 0 12px;
-  margin-bottom: 10px;
+  width: 100%;
+  padding: 12px;
   min-height: 43px;
   border: 1px solid var(--line);
   border-radius: 7px;
   color: var(--muted);
   font-size: 11px;
 }
-.language-control:hover {
+.language-trigger:hover,
+.language-trigger[aria-expanded='true'] {
   background: var(--card);
   color: var(--text);
 }
-.language-control > svg {
+.language-trigger > svg {
   flex-shrink: 0;
   pointer-events: none;
 }
-.language-control select {
-  appearance: none;
-  cursor: pointer;
+.language-value {
   min-width: 0;
-  width: 100%;
-  padding: 12px 17px 12px 0;
-  color: inherit;
-  background: transparent;
-  border: 0;
-}
-.language-control option {
-  color: var(--text);
-  background: var(--input);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .language-chevron {
+  margin-left: auto;
+  transition: transform 0.18s;
+}
+.language-chevron.open {
+  transform: rotate(180deg);
+}
+.language-menu {
   position: absolute;
-  right: 10px;
+  z-index: 10;
+  left: 0;
+  bottom: calc(100% + 8px);
+  width: 194px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.language-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 38px;
+  padding: 10px 12px;
+  border-radius: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: left;
+}
+.language-option.active {
+  background: var(--hover);
+  color: var(--text);
+}
+.language-option.selected {
+  background: var(--selected);
+  color: var(--green);
+  font-weight: 600;
 }
 :lang(en) .nav-item {
   gap: 8px;
@@ -1489,21 +1519,12 @@ input {
   }
 }
 @media (max-width: 760px) {
-  .language-control {
+  .language-trigger {
     justify-content: center;
     padding: 0;
   }
-  .language-control select {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    padding: 0;
-  }
-  .language-control:focus-within {
-    outline: 2px solid var(--green);
-    outline-offset: 4px;
-  }
-  .language-control .language-chevron {
+  .language-value,
+  .language-chevron {
     display: none;
   }
   .sidebar {

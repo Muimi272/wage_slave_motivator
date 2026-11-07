@@ -10,7 +10,6 @@ import {
   Bell,
   Check,
   ChevronRight,
-  ChevronDown,
   CircleHelp,
   Clock3,
   Coffee,
@@ -18,7 +17,6 @@ import {
   EyeOff,
   Expand,
   LayoutDashboard,
-  Languages,
   Minimize2,
   Minus,
   Moon,
@@ -43,6 +41,7 @@ import {
   type Config,
 } from './domain'
 import { resolveLocale, translate, weekdays, type Message } from './i18n'
+import LanguageSelect from './LanguageSelect.vue'
 import { loadConfig, persistConfig } from './persistence'
 import { newTimer, pauseTimer, remainingMs, restoreTimer, startTimer, type Timer } from './timer'
 
@@ -333,8 +332,7 @@ watch(
   { immediate: true },
 )
 
-async function changeLanguage(event: Event) {
-  const language = (event.target as HTMLSelectElement).value as Config['language']
+async function changeLanguage(language: Config['language']) {
   try {
     const next = { ...config.value, language }
     await persistConfig(next)
@@ -515,15 +513,7 @@ onUnmounted(() => {
         </button>
       </nav>
       <div class="sidebar-bottom">
-        <label class="language-control" :title="t('语言')">
-          <Languages :size="17" aria-hidden="true" />
-          <select :value="config.language" @change="changeLanguage" :aria-label="t('语言')">
-            <option value="system">{{ t('跟随系统') }}</option>
-            <option value="en">English</option>
-            <option value="zh-CN">简体中文</option>
-          </select>
-          <ChevronDown class="language-chevron" :size="13" aria-hidden="true" />
-        </label>
+        <LanguageSelect :value="config.language" :locale="locale" @change="changeLanguage" />
         <button class="mini-launch" :aria-label="t('迷你模式')" @click="toggleCompact">
           <Minimize2 :size="17" /><span>{{ t('迷你模式') }}</span
           ><ArrowDownLeft :size="14" />
