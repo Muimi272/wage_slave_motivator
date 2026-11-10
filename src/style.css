@@ -49,7 +49,8 @@ body {
   margin: 0;
 }
 button,
-input {
+input,
+select {
   font: inherit;
 }
 button,
@@ -439,19 +440,31 @@ h1 {
   display: flex;
   align-items: baseline;
   font-family: 'Motivator Numbers', 'Segoe UI', sans-serif;
-  font-size: clamp(50px, 6.6vw, 87px);
   font-weight: 450;
   letter-spacing: -4px;
   line-height: 1.1;
   margin: 20px 0 18px;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+  min-width: 0;
+}
+.earnings-amount .rolling-number {
+  font-size: clamp(26px, 4.8vw, 68px);
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+.earnings-amount .rolling-number.many-decimals {
+  font-size: clamp(21px, 3.9vw, 53px);
 }
 .currency {
   font-size: 30px;
   letter-spacing: 0;
   margin-right: 9px;
   font-weight: 400;
+  flex-shrink: 0;
+}
+.number-secret {
+  font-family: 'Motivator Numbers', 'Segoe UI', sans-serif;
 }
 .earnings-meta {
   display: flex;
@@ -1080,7 +1093,8 @@ h1 {
   font-size: 11px;
   color: var(--muted);
 }
-input {
+input,
+select {
   min-width: 0;
   width: 100%;
   border: 1px solid var(--line);
@@ -1124,6 +1138,36 @@ input {
 .input-with-unit > span {
   white-space: nowrap;
   font-size: 10px;
+}
+.currency-settings-row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 22px;
+}
+.currency-settings-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.currency-settings-row select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) 18px,
+    calc(100% - 11px) 18px;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 32px;
+}
+.field-note {
+  margin-top: 10px;
+  color: var(--faint);
+  font-size: 10px;
+  line-height: 1.6;
 }
 .workdays-field {
   border: 0;
@@ -1348,14 +1392,25 @@ input {
 .mini-brand svg {
   color: var(--green);
 }
+.mini-currency {
+  color: var(--faint);
+  font-family: 'Motivator Numbers', sans-serif;
+  letter-spacing: 0.06em;
+}
 .mini-amount {
   font-family: 'Motivator Numbers', sans-serif;
   display: flex;
   align-items: baseline;
-  font-size: 43px;
   letter-spacing: -1.8px;
   line-height: 1;
   margin: 14px 0;
+}
+.mini-amount .rolling-number {
+  font-size: 22px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .mini-amount > span {
   font-size: 22px;
@@ -1464,8 +1519,7 @@ input {
     padding: 25px 22px;
   }
   .earnings-amount {
-    font-size: 61px;
-    letter-spacing: -3px;
+    gap: 0;
   }
   .earnings-card,
   .middle-grid {
@@ -1760,17 +1814,6 @@ input {
     padding-left: 21px;
     padding-right: 21px;
   }
-}
-.dashboard .earnings-amount.large-value {
-  font-size: clamp(34px, 4.6vw, 58px);
-  letter-spacing: -2px;
-}
-.mini-amount.large-value {
-  font-size: 30px;
-  letter-spacing: -1px;
-}
-.focus-stats .focus-earned.large-value {
-  font-size: 20px;
 }
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import {
+  convertCurrency,
+  currencies,
   defaults,
   durationText,
   earnings,
   paydayInfo,
   validateConfig,
   weekEarnings,
+  type Config,
 } from './domain'
 import { newTimer, pauseTimer, remainingMs, restoreTimer, startTimer } from './timer'
 
@@ -114,8 +117,35 @@ describe('settings validation', () => {
     { workdays: [1, 1] },
     { focusMinutes: 0 },
     { breakMinutes: 181 },
+    { displayCurrency: 'GBP' as Config['displayCurrency'] },
+    { exchangeRates: { ...defaults.exchangeRates, USD: 0 } },
+    { exchangeRates: { ...defaults.exchangeRates, EUR: NaN } },
   ])('rejects invalid input %j', (change) => {
     expect(validateConfig({ ...defaults, ...change })).not.toBeNull()
+  })
+  it('supports all requested display currencies independent of the CNY salary', () => {
+    expect(currencies.map((currency) => currency.code)).toEqual([
+      'CNY',
+      'VND',
+      'INR',
+      'ZWG',
+      'USD',
+      'EUR',
+    ])
+    expect(
+      convertCurrency(100, {
+        ...defaults,
+        displayCurrency: 'VND',
+        exchangeRates: { ...defaults.exchangeRates, VND: 3831.417625 },
+      }),
+    ).toBeCloseTo(383141.7625)
+    expect(
+      convertCurrency(100, {
+        ...defaults,
+        displayCurrency: 'EUR',
+        exchangeRates: { ...defaults.exchangeRates, EUR: 0.133627 },
+      }),
+    ).toBeCloseTo(13.3627)
   })
 })
 

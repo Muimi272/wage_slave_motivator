@@ -15,6 +15,10 @@ struct Config {
     #[serde(default = "language::default_language")]
     language: String,
     monthly_salary: f64,
+    #[serde(default = "default_currency")]
+    display_currency: String,
+    #[serde(default)]
+    exchange_rates: Option<std::collections::HashMap<String, f64>>,
     work_days_per_month: f64,
     payday: u8,
     work_start: String,
@@ -27,6 +31,24 @@ struct Config {
     break_minutes: u16,
     notifications: bool,
     theme: String,
+}
+
+fn default_currency() -> String {
+    "CNY".into()
+}
+
+fn default_exchange_rates() -> std::collections::HashMap<String, f64> {
+    [
+        ("CNY", 1.0),
+        ("VND", 3831.417625),
+        ("INR", 14.067863),
+        ("ZWG", 3.966854),
+        ("USD", 0.149554),
+        ("EUR", 0.133627),
+    ]
+    .into_iter()
+    .map(|(code, rate)| (code.into(), rate))
+    .collect()
 }
 
 fn minutes(value: &str) -> Option<u16> {
@@ -58,6 +80,12 @@ fn validate(config: &Config) -> Result<(), String> {
         || !(1..=180).contains(&config.break_minutes)
         || !["light", "dark", "system"].contains(&config.theme.as_str())
         || !["system", "en", "zh-CN"].contains(&config.language.as_str())
+        || !["CNY", "VND", "INR", "ZWG", "USD", "EUR"].contains(&config.display_currency.as_str())
+        || config.exchange_rates.as_ref().is_some_and(|rates| {
+            !["CNY", "VND", "INR", "ZWG", "USD", "EUR"]
+                .iter()
+                .all(|code| rates.get(*code).is_some_and(|rate| rate.is_finite() && *rate > 0.0))
+        })
     {
         return Err(fail());
     }
@@ -114,6 +142,10 @@ fn load_config(
     let config: Config =
         serde_json::from_slice(&data).map_err(|e| format!("Could not read settings: {e}"))?;
     validate(&config)?;
+    let mut config = config;
+    if config.exchange_rates.is_none() {
+        config.exchange_rates = Some(default_exchange_rates());
+    }
     Ok(Some(config))
 }
 

@@ -7,6 +7,10 @@ export async function loadConfig(): Promise<Config | null> {
     : JSON.parse(localStorage.getItem('motivator.config') || 'null')
   if (!saved) return null
   const merged = { ...defaults, ...saved }
+  merged.exchangeRates = {
+    ...defaults.exchangeRates,
+    ...(saved.exchangeRates ?? {}),
+  }
   const error = validateConfig(merged)
   if (error) throw new Error(error)
   return merged

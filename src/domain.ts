@@ -1,8 +1,29 @@
 import type { Language, Message } from './i18n'
 
+export type CurrencyCode = 'CNY' | 'VND' | 'INR' | 'ZWG' | 'USD' | 'EUR'
+
+export interface Currency {
+  code: CurrencyCode
+  label: string
+  symbol: string
+  decimals: number
+  defaultRate: number
+}
+
+export const currencies: Currency[] = [
+  { code: 'CNY', label: '人民币', symbol: '¥', decimals: 2, defaultRate: 1 },
+  { code: 'VND', label: '越南盾', symbol: '₫', decimals: 0, defaultRate: 3831.417625 },
+  { code: 'INR', label: '印度卢比', symbol: '₹', decimals: 2, defaultRate: 14.067863 },
+  { code: 'ZWG', label: '津巴布韦币', symbol: 'ZiG', decimals: 2, defaultRate: 3.966854 },
+  { code: 'USD', label: '美元', symbol: '$', decimals: 2, defaultRate: 0.149554 },
+  { code: 'EUR', label: '欧元', symbol: '€', decimals: 2, defaultRate: 0.133627 },
+]
+
 export interface Config {
   language: Language
   monthlySalary: number
+  displayCurrency: CurrencyCode
+  exchangeRates: Record<CurrencyCode, number>
   workDaysPerMonth: number
   payday: number
   workStart: string
@@ -20,6 +41,11 @@ export interface Config {
 export const defaults: Config = {
   language: 'system',
   monthlySalary: 12000,
+  displayCurrency: 'CNY',
+  exchangeRates: Object.fromEntries(currencies.map((c) => [c.code, c.defaultRate])) as Record<
+    CurrencyCode,
+    number
+  >,
   workDaysPerMonth: 21.75,
   payday: 10,
   workStart: '09:00',
@@ -34,6 +60,12 @@ export const defaults: Config = {
   theme: 'light',
 }
 
+export const findCurrency = (code: CurrencyCode) =>
+  currencies.find((currency) => currency.code === code) ?? currencies[0]
+
+export const convertCurrency = (amount: number, c: Config) =>
+  amount * (c.exchangeRates[c.displayCurrency] ?? 1)
+
 export const minuteOfDay = (value: string) => {
   const [h, m] = value.split(':').map(Number)
   return h * 60 + m
@@ -46,6 +78,14 @@ export function validateConfig(c: Config): Message | null {
     return '月计薪天数须在 1 至 31 天之间'
   if (!Number.isInteger(c.payday) || c.payday < 1 || c.payday > 31)
     return '发薪日须在 1 至 31 日之间'
+  if (
+    !currencies.some((currency) => currency.code === c.displayCurrency) ||
+    !currencies.every(
+      (currency) =>
+        Number.isFinite(c.exchangeRates[currency.code]) && c.exchangeRates[currency.code] > 0,
+    )
+  )
+    return '汇率须为大于0的有效数字'
   if (
     ![c.workStart, c.workEnd, c.lunchStart, c.lunchEnd].every((t) =>
       /^([01]\d|2[0-3]):[0-5]\d$/.test(t),

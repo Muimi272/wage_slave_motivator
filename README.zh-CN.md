@@ -6,6 +6,13 @@ Rust + Tauri 2 + Vue 3 + TypeScript 桌面应用。实时显示当日工资，�
 
 ![浅色界面预览](docs/preview.png)
 
+## v1.2.0 货币与数字滚动
+
+- 工资统一以人民币录入，可切换显示人民币、越南盾、印度卢比、津巴布韦币、美元与欧元。
+- 每种币种的汇率在设置中手动维护并保存在本机；汇率仅用于显示换算，不联网更新。
+- 今日收入固定显示到小数点后 8 位，并用逐位滚动效果平滑递增；系统启用“减少动态效果”时自动停用动画。
+- 其他金额按币种常规精度显示，避免所有辅助数据都被拉成长数字。
+
 ## 开发
 
 需要 Node.js 22.12+、Rust stable 和 [Tauri 2 系统依赖](https://v2.tauri.app/start/prerequisites/)。Windows 需要 MSVC C++ Build Tools 与 WebView2。
