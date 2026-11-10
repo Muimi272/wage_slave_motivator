@@ -1,7 +1,7 @@
 {
   "name": "wage-slave-motivator",
   "private": true,
-  "version": "1.1.2",
+  "version": "1.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
@@ -15,6 +15,7 @@
     "release:windows": "tauri build && node scripts/package-release.mjs"
   },
   "dependencies": {
+    "@number-flow/vue": "^0.5.2",
     "@tauri-apps/api": "^2.9.0",
     "@tauri-apps/plugin-notification": "^2.3.0",
     "lucide-vue-next": "^0.468.0",

@@ -1,4 +1,22 @@
-# Wage Slave Motivator 1.1.2 · 牛马鼓励器
+# Wage Slave Motivator 1.2.0 · 牛马鼓励器
+
+## Currency and rolling numbers
+
+- Keep the salary in CNY and switch the display to CNY, VND, INR, ZWG, USD, or EUR.
+- Store a manual display rate for each currency locally; no exchange-rate service is called.
+- Show today's earnings to eight decimal places with digit-by-digit rolling motion.
+- Respect the operating system's reduced-motion preference.
+
+## 中文说明
+
+- 工资统一按人民币保存，可切换显示人民币、越南盾、印度卢比、津巴布韦币、美元与欧元。
+- 汇率在设置中手动填写并仅保存在本机，不请求联网汇率服务。
+- 今日收入显示小数点后 8 位，并逐位平滑滚动。
+- 系统开启“减少动态效果”时关闭数字动画。
+
+本版保留原有工作日程、发薪倒计时、专注时钟、中英文界面、系统托盘与迷你窗口。旧版配置会自动补上人民币显示与参考汇率，不重置薪资或日程。
+
+当前源码已完成前端类型检查、生产构建与 58 项前端测试。Windows 桌面包需要在安装 Rust stable、MSVC C++ Build Tools 与 Tauri 依赖的环境中构建；本目录尚未包含该构建产物。
 
 English and Simplified Chinese now work throughout the dashboard, settings, focus timer, compact window, tray menu, notifications, and validation messages. Switch languages from the sidebar; changes apply immediately and survive restarts. System mode defaults to Chinese in Chinese locales and English elsewhere, including the `C` locale used by the AppImage catalog. Existing salary and schedule settings are preserved.
 

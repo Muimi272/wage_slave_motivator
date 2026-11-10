@@ -4,6 +4,7 @@ import { version } from '../package.json'
 import { isTauri, invoke } from '@tauri-apps/api/core'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { listen, type UnlistenFn } from '@tauri-apps/api/event'
+import NumberFlow from '@number-flow/vue'
 import {
   ArrowDownLeft,
   ArrowRight,
@@ -31,10 +32,13 @@ import {
 } from 'lucide-vue-next'
 import {
   atTime,
+  convertCurrency,
+  currencies,
   dayKey,
   defaults,
   durationText,
   earnings,
+  findCurrency,
   paydayInfo,
   validateConfig,
   weekEarnings,
@@ -72,6 +76,8 @@ const isDark = computed(
   () => config.value.theme === 'dark' || (config.value.theme === 'system' && systemDark.value),
 )
 const wage = computed(() => earnings(config.value, now.value))
+const currency = computed(() => findCurrency(config.value.displayCurrency))
+const displayAmount = computed(() => convertCurrency(wage.value.amount, config.value))
 const payday = computed(() => paydayInfo(config.value, now.value))
 const week = computed(() => weekEarnings(config.value, now.value))
 const weekTotal = computed(() => week.value.reduce((sum, day) => sum + day.amount, 0))
@@ -89,6 +95,8 @@ const money = (amount: number, decimals = 2) =>
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
       }).format(amount)
+const convertedMoney = (amount: number, decimals = currency.value.decimals) =>
+  money(convertCurrency(amount, config.value), decimals)
 const dateLabel = computed(() =>
   now.value.toLocaleDateString(locale.value, { month: 'long', day: 'numeric', weekday: 'long' }),
 )
@@ -188,7 +196,10 @@ function tick() {
       {
         time: config.value.workEnd,
         title: t('下班时间到了'),
-        body: t('今日收入 ¥{amount}。', { amount: money(wage.value.amount) }),
+        body: t('今日收入 {symbol}{amount}。', {
+          symbol: currency.value.symbol,
+          amount: convertedMoney(wage.value.amount),
+        }),
       },
     ]
     for (const event of events) {
@@ -446,7 +457,10 @@ onUnmounted(() => {
 <template>
   <div v-if="compact" class="mini-window">
     <div class="mini-title" data-tauri-drag-region>
-      <span class="mini-brand"><Sprout :size="16" /> {{ t('今日收入') }}</span>
+      <span class="mini-brand"
+        ><Sprout :size="16" /> {{ t('今日收入') }}
+        <span class="mini-currency">{{ currency.code }}</span></span
+      >
       <div class="window-actions">
         <button class="icon-button" :aria-label="t('展开主窗口')" @click="toggleCompact">
           <Expand :size="15" /></button
@@ -455,13 +469,21 @@ onUnmounted(() => {
         </button>
       </div>
     </div>
-    <div
-      class="mini-amount"
-      :class="{ 'large-value': money(wage.amount).length > 10 }"
-      data-tauri-drag-region
-    >
-      <span>¥</span>{{ money(wage.amount)
-      }}<button
+    <div class="mini-amount">
+      <span>{{ currency.symbol }}</span>
+      <span v-if="privacy" class="number-secret">••••</span>
+      <NumberFlow
+        v-else
+        :class="['rolling-number', { 'many-decimals': currency.decimals === 0 }]"
+        data-testid="earnings"
+        :value="displayAmount"
+        :locales="locale"
+        :format="{ minimumFractionDigits: 8, maximumFractionDigits: 8 }"
+        :animated="true"
+        :respect-motion-preference="true"
+        :will-change="true"
+      />
+      <button
         class="icon-button"
         :aria-label="privacy ? t('显示金额') : t('隐藏金额')"
         @click="togglePrivacy"
@@ -472,9 +494,8 @@ onUnmounted(() => {
     <div class="mini-bottom">
       <span class="status"><i :class="{ active: statusActive }" />{{ t(wage.status) }}</span
       ><span
-        >{{ (wage.progress * 100).toFixed(0) }}%<span class="mini-divider">/</span>¥{{
-          money(wage.daily)
-        }}</span
+        >{{ (wage.progress * 100).toFixed(0) }}%<span class="mini-divider">/</span
+        >{{ currency.symbol }}{{ convertedMoney(wage.daily) }}</span
       >
     </div>
     <div class="mini-progress"><span :style="{ width: `${wage.progress * 100}%` }" /></div>
@@ -584,20 +605,36 @@ onUnmounted(() => {
                 <component :is="privacy ? EyeOff : Eye" :size="17" />
               </button>
             </div>
-            <div class="earnings-amount" :class="{ 'large-value': money(wage.amount).length > 10 }">
-              <span class="currency">¥</span
-              ><span data-testid="earnings">{{ money(wage.amount) }}</span>
+            <div class="earnings-amount">
+              <span class="currency">{{ currency.symbol }}</span>
+              <span v-if="privacy" class="number-secret">••••</span>
+              <NumberFlow
+                v-else
+                :class="['rolling-number', { 'many-decimals': currency.decimals === 0 }]"
+                data-testid="earnings"
+                :value="displayAmount"
+                :locales="locale"
+                :format="{ minimumFractionDigits: 8, maximumFractionDigits: 8 }"
+                :animated="true"
+                :respect-motion-preference="true"
+                :will-change="true"
+              />
             </div>
             <div class="earnings-meta">
               <span class="status"><i :class="{ active: statusActive }" />{{ t(wage.status) }}</span
               ><span class="meta-divider" /><span
-                >{{ t('时薪') }} <strong>¥{{ money(wage.hourly) }}</strong></span
+                >{{ t('时薪') }}
+                <strong>{{ currency.symbol }}{{ convertedMoney(wage.hourly) }}</strong></span
               >
             </div>
             <div class="earnings-baseline">
               <span
-                >{{ t('当日目标') }} <strong>¥{{ money(wage.daily) }}</strong></span
-              ><span class="per-second">+ ¥{{ money(wage.hourly / 3600, 4) }} / {{ t('秒') }}</span>
+                >{{ t('当日目标') }}
+                <strong>{{ currency.symbol }}{{ convertedMoney(wage.daily) }}</strong></span
+              ><span class="per-second"
+                >+ {{ currency.symbol }}{{ convertedMoney(wage.hourly / 3600, 8) }} /
+                {{ t('秒') }}</span
+              >
             </div>
           </div>
           <div class="day-progress">
@@ -708,14 +745,14 @@ onUnmounted(() => {
                   ><CircleHelp :size="13"
                 /></span>
               </h2>
-              <span class="week-total">¥{{ money(weekTotal) }}</span>
+              <span class="week-total">{{ currency.symbol }}{{ convertedMoney(weekTotal) }}</span>
             </div>
             <div class="week-chart">
               <div
                 v-for="(day, index) in week"
                 :key="index"
                 :class="['chart-column', { today: day.isToday, future: day.future }]"
-                :title="`${day.day.toLocaleDateString(locale)}：¥${money(day.amount)}`"
+                :title="`${day.day.toLocaleDateString(locale)}：${currency.symbol}${convertedMoney(day.amount)}`"
               >
                 <div class="bar-slot">
                   <span v-if="day.isToday" class="bar-today-dot" />
@@ -763,7 +800,7 @@ onUnmounted(() => {
         </div>
         <footer class="page-footer">
           <span><span class="footer-dot" />{{ ready ? t('本地已就绪') : t('正在载入') }}</span
-          ><span>{{ t('CNY · 人民币') }}</span>
+          ><span>{{ currency.code }} · {{ currency.label }}</span>
         </footer>
       </main>
 
@@ -855,8 +892,8 @@ onUnmounted(() => {
           </div>
           <div>
             <span class="small-muted">{{ t('今日收入') }}</span
-            ><strong class="focus-earned" :class="{ 'large-value': money(wage.amount).length > 10 }"
-              >¥{{ money(wage.amount) }}</strong
+            ><strong class="focus-earned"
+              >{{ currency.symbol }}{{ convertedMoney(wage.amount) }}</strong
             >
           </div>
         </div>
@@ -878,9 +915,9 @@ onUnmounted(() => {
             </div>
             <div class="form-grid three-columns">
               <label
-                >{{ t('税后月薪')
+                >{{ t('税后月薪CNY')
                 }}<span class="input-with-unit"
-                  ><span>¥</span
+                  ><span>CNY ¥</span
                   ><input
                     v-model.number="draft.monthlySalary"
                     type="number"
@@ -921,6 +958,37 @@ onUnmounted(() => {
           <section class="settings-section">
             <div class="settings-section-title">
               <span class="section-index">02</span>
+              <h2>{{ t('显示货币') }}</h2>
+            </div>
+            <div class="currency-settings-row">
+              <label
+                >{{ t('显示货币')
+                }}<select v-model="draft.displayCurrency" :aria-label="t('显示货币')">
+                  <option v-for="item in currencies" :key="item.code" :value="item.code">
+                    {{ item.symbol }} · {{ item.label }} ({{ item.code }})
+                  </option>
+                </select></label
+              >
+              <label
+                >{{ t('手动汇率')
+                }}<span class="input-with-unit"
+                  ><span>1 CNY =</span
+                  ><input
+                    v-model.number="draft.exchangeRates[draft.displayCurrency]"
+                    type="number"
+                    min="0.00000001"
+                    step="any"
+                    required
+                    :aria-label="t('手动汇率')"
+                  /><span>{{ draft.displayCurrency }}</span></span
+                >
+              </label>
+            </div>
+            <p class="field-note">{{ t('汇率仅用于显示换算，不会联网更新。') }}</p>
+          </section>
+          <section class="settings-section">
+            <div class="settings-section-title">
+              <span class="section-index">03</span>
               <h2>{{ t('工作日程') }}</h2>
             </div>
             <div class="form-grid">
@@ -969,7 +1037,7 @@ onUnmounted(() => {
           </section>
           <section class="settings-section">
             <div class="settings-section-title">
-              <span class="section-index">03</span>
+              <span class="section-index">04</span>
               <h2>{{ t('专注与提醒') }}</h2>
             </div>
             <div class="form-grid">
@@ -1017,7 +1085,7 @@ onUnmounted(() => {
           </section>
           <section class="settings-section appearance-section">
             <div class="settings-section-title">
-              <span class="section-index">04</span>
+              <span class="section-index">05</span>
               <h2>{{ t('外观') }}</h2>
             </div>
             <div class="segmented theme-options">
